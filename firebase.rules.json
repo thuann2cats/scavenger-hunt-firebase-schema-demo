@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "SchemaTesting_Thuan": {
+      "verifications": {
+        ".indexOn": ["userId", "status"],
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
