@@ -9,7 +9,7 @@ export class UserService extends BaseService {
     }
 
     const newUser: User = {
-      username: '',
+      displayName: '',
       email: '',
       sessionsJoined: {},
       isAdmin: false,
@@ -24,11 +24,11 @@ export class UserService extends BaseService {
     return await this.getData<User>(`users/${userId}`);
   }
 
-  async setUsername(userId: string, username: string): Promise<void> {
+  async setDisplayName(userId: string, displayName: string): Promise<void> {  // Renamed from setUsername
     const user = await this.getUser(userId);
     if (!user) throw new Error('User not found');
     
-    await this.setData(`users/${userId}/username`, username);
+    await this.setData(`users/${userId}/displayName`, displayName);  // Changed path
     await this.setData(`users/${userId}/updatedAt`, Date.now());
   }
 

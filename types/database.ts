@@ -1,5 +1,5 @@
 export interface User {
-  username: string;
+  displayName: string;  // Changed from username
   email: string;
   profilePictureUrl?: string;
   currentSession?: string;

@@ -42,9 +42,9 @@ async function runTest1() {
 
     // Step 2: Set basic attributes
     console.log('\nStep 2: Setting basic attributes...');
-    await userService.setUsername('user1', 'Alice');
+    await userService.setDisplayName('user1', 'Alice');  // Changed from setUsername
     await userService.setEmail('user1', 'alice@test.com');
-    await userService.setUsername('user2', 'Bob');
+    await userService.setDisplayName('user2', 'Bob');
     await userService.setEmail('user2', 'bob@test.com');
     
     await teamService.setTeamName('team1', 'Red Team');
@@ -149,13 +149,13 @@ async function runTest2() {
     // Section 2: User Creation and Session Association
     console.log('\nCreating users and adding to session1...');
     await userService.createUser('user_A');
-    await userService.setUsername('user_A', 'Alice');
+    await userService.setDisplayName('user_A', 'Alice');
     await userService.createUser('user_B');
-    await userService.setUsername('user_B', 'Ben');
+    await userService.setDisplayName('user_B', 'Ben');
     await userService.createUser('user_C');
-    await userService.setUsername('user_C', 'Chris');
+    await userService.setDisplayName('user_C', 'Chris');
     await userService.createUser('user_D');
-    await userService.setUsername('user_D', 'Dan');
+    await userService.setDisplayName('user_D', 'Dan');
 
     await userService.addUserToSession('user_A', 'session1');
     await userService.addUserToSession('user_B', 'session1');
@@ -300,13 +300,13 @@ async function runTest2() {
     console.log('\nSetting up final users and teams...');
     // Create and add new users
     await userService.createUser('user_E');
-    await userService.setUsername('user_E', 'Emily');
+    await userService.setDisplayName('user_E', 'Emily');
     await userService.createUser('user_F');
-    await userService.setUsername('user_F', 'Felix');
+    await userService.setDisplayName('user_F', 'Felix');
     await userService.createUser('user_G');
-    await userService.setUsername('user_G', 'Gabby');
+    await userService.setDisplayName('user_G', 'Gabby');
     await userService.createUser('user_H');
-    await userService.setUsername('user_H', 'Hannah');
+    await userService.setDisplayName('user_H', 'Hannah');
 
     // Add new users to session2
     await userService.addUserToSession('user_E', 'session2');
