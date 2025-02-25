@@ -16,13 +16,9 @@ async function clearTestNode(baseNode: string) {
   console.log('Test node cleared');
 }
 
-async function runTests() {
-  console.log('Starting service tests...');
-
-  // Initialize services with test node
-  const baseNode = 'SchemaTest_Thuan';
-  
-  // Clean up before starting tests
+async function runTest1() {
+  console.log('\nStarting Test 1...');
+  const baseNode = 'SchemaTest_Thuan_Test1';
   await clearTestNode(baseNode);
 
   const userService = new UserService(baseNode);
@@ -31,6 +27,9 @@ async function runTests() {
   const artifactService = new ArtifactService(baseNode);
 
   try {
+    // Original test steps moved here
+    console.log('\nTest 1: Basic CRUD Operations');
+    
     // Step 1: Create blank objects
     console.log('\nStep 1: Creating blank objects...');
     await userService.createUser('user1');
@@ -119,20 +118,46 @@ async function runTests() {
     await artifactService.deleteArtifact('artifact1');
     console.log('✓ Deleted all objects');
 
-    console.log('\nAll tests completed successfully! ✨');
-
+    console.log('\nTest 1 completed successfully! ✨');
   } catch (error) {
-    console.error('Test failed:', error);
+    console.error('Test 1 failed:', error);
     throw error;
   }
-
-  // Allow time for Firebase operations to complete
-  await sleep(2000);
 }
 
-runTests()
-  .then(() => process.exit(0))
-  .catch((error) => {
+async function runTest2() {
+  console.log('\nStarting Test 2...');
+  const baseNode = 'SchemaTest_Thuan_Test2';
+  await clearTestNode(baseNode);
+
+  const userService = new UserService(baseNode);
+  const teamService = new TeamService(baseNode);
+  const sessionService = new SessionService(baseNode);
+  const artifactService = new ArtifactService(baseNode);
+
+  try {
+    // Test 2 steps will be added later
+    console.log('\nTest 2: Placeholder for future test cases');
+    console.log('Test 2 completed successfully! ✨');
+  } catch (error) {
+    console.error('Test 2 failed:', error);
+    throw error;
+  }
+}
+
+async function runAllTests() {
+  try {
+    await runTest1();
+    await runTest2();
+    console.log('\nAll tests completed successfully! ✨');
+  } catch (error) {
     console.error('Tests failed:', error);
     process.exit(1);
-  });
+  }
+  
+  // Allow time for Firebase operations to complete
+  await sleep(2000);
+  process.exit(0);
+}
+
+runAllTests();
