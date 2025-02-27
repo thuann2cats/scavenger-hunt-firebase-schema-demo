@@ -345,10 +345,198 @@ async function runTest2() {
   }
 }
 
+async function runTest3() {
+  console.log('\nStarting Test 3: Testing Validation Rules and State Transitions');
+  const baseNode = 'SchemaTest_Thuan_Test3';
+  await clearTestNode(baseNode);
+
+  const userService = new UserService(baseNode);
+  const teamService = new TeamService(baseNode);
+  const sessionService = new SessionService(baseNode);
+  const artifactService = new ArtifactService(baseNode);
+
+  try {
+    // Initial setup: Create users
+    console.log('\nCreating users...');
+    await userService.createUser('user_A');
+    await userService.setDisplayName('user_A', 'Alice');
+    await userService.createUser('user_B');
+    await userService.setDisplayName('user_B', 'Ben');
+    await userService.createUser('user_C');
+    await userService.setDisplayName('user_C', 'Chris');
+    await userService.createUser('user_D');
+    await userService.setDisplayName('user_D', 'Dan');
+    // State: 4 users exist, no sessions yet
+
+    // Create session and teams
+    console.log('\nCreating session and teams...');
+    await sessionService.createSession('session1', 'admin1');
+    await teamService.createTeam('team1');
+    await teamService.createTeam('team2');
+    await teamService.createTeam('team3');
+    // State: 1 session and 3 teams exist, no associations
+
+    // Test invalid team assignment
+    console.log('\nTesting invalid team assignment...');
+    try {
+      await userService.assignUserToTeam('user_A', 'session1', 'team1');
+      throw new Error('Should not be able to assign user to team not in session');
+    } catch (e: Error | any) {
+      if (!e.message.includes('User is not part of this session')) throw e;
+    }
+
+    // Add team1 to session1
+    await sessionService.addTeam('session1', 'team1');
+    // State: session1 has team1, no users yet
+
+    // Test invalid user assignment to team
+    try {
+      await userService.assignUserToTeam('user_A', 'session1', 'team1');
+      throw new Error('Should not be able to assign user not in session to team');
+    } catch (e: Error | any) {
+      if (!e.message.includes('User is not part of this session')) throw e;
+    }
+
+    // Add user_A to session
+    await userService.addUserToSession('user_A', 'session1');
+    // State: session1 has team1 and user_A, but not connected
+
+    // Test invalid team assignments
+    try {
+      await userService.assignUserToTeam('user_A', 'session1', 'team2');
+      throw new Error('Should not be able to assign to team not in session');
+    } catch (e: Error | any) {
+      if (!e.message.includes('Team does not belong to this session')) throw e;
+    }
+
+    // Test invalid team removal
+    try {
+      await sessionService.removeTeam('session1', 'team2');
+      throw new Error('Should not be able to remove non-existent team');
+    } catch (e: Error | any) {
+      if (!e.message.includes('Team is not part of this session')) throw e;
+    }
+
+    // Add remaining users and teams to session
+    console.log('\nAdding remaining users and teams...');
+    await userService.addUserToSession('user_B', 'session1');
+    await userService.addUserToSession('user_C', 'session1');
+    await userService.addUserToSession('user_D', 'session1');
+    await sessionService.addTeam('session1', 'team2');
+    await sessionService.addTeam('session1', 'team3');
+    // State: session1 has all users and teams, no assignments
+
+    // Create artifacts
+    console.log('\nSetting up artifacts...');
+    await artifactService.createArtifact('at1');
+    await artifactService.createArtifact('at2');
+    await artifactService.createArtifact('at3');
+    // State: 3 artifacts exist, not in session
+
+    // Test invalid artifact finding
+    try {
+      await userService.addFoundArtifact('user_A', 'session1', 'at1');
+      throw new Error('Should not be able to find artifact not in session');
+    } catch (e: Error | any) {
+      if (!e.message.includes('Artifact is not part of this session')) throw e;
+    }
+
+    // Add artifacts to session
+    await sessionService.addArtifact('session1', 'at1');
+    await sessionService.addArtifact('session1', 'at2');
+    await sessionService.addArtifact('session1', 'at3');
+    // State: session1 now has all artifacts
+
+    // Assign users to teams
+    console.log('\nAssigning users to teams...');
+    await userService.assignUserToTeam('user_A', 'session1', 'team1');
+    await userService.assignUserToTeam('user_B', 'session1', 'team1');
+    await userService.assignUserToTeam('user_C', 'session1', 'team2');
+    await userService.assignUserToTeam('user_D', 'session1', 'team2');
+    // State: team1(A,B), team2(C,D), team3(empty)
+
+    // Record artifact findings and points
+    console.log('\nRecording artifact findings...');
+    await userService.addFoundArtifact('user_A', 'session1', 'at1');
+    await userService.updatePoints('user_A', 'session1', 10);
+    await userService.addFoundArtifact('user_B', 'session1', 'at2');
+    await userService.updatePoints('user_B', 'session1', 10);
+    // State: A found at1, B found at2
+
+    // Test invalid removals
+    console.log('\nTesting removal restrictions...');
+    try {
+      await userService.removeUserFromSession('user_A', 'session1');
+      throw new Error('Should not be able to remove user from session while in team');
+    } catch (e: Error | any) {
+      if (!e.message.includes('Remove user from team first')) throw e;
+    }
+
+    try {
+      await sessionService.removeTeam('session1', 'team2');
+      throw new Error('Should not be able to remove team with members');
+    } catch (e: Error | any) {
+      if (!e.message.includes('Team must be empty')) throw e;
+    }
+
+    try {
+      await sessionService.removeArtifact('session1', 'at1');
+      throw new Error('Should not be able to remove found artifact');
+    } catch (e: Error | any) {
+      if (!e.message.includes('found by users')) throw e;
+    }
+
+    // Remove and delete artifact at2
+    console.log('\nTesting artifact removal and deletion...');
+    await userService.removeFoundArtifact('user_B', 'session1', 'at2');
+    await sessionService.removeArtifact('session1', 'at2');
+    await artifactService.deleteArtifact('at2');
+    // State: at2 completely removed
+
+    // Verify final state
+    console.log('\nVerifying final state...');
+    const session = await sessionService.getSession('session1');
+    if (!session) throw new Error('Session not found');
+    
+    // Verify teams in session
+    const teams = await sessionService.listSessionTeams('session1');
+    if (!teams.includes('team1') || !teams.includes('team2') || !teams.includes('team3')) {
+      throw new Error('Missing expected teams in session');
+    }
+
+    // Verify team memberships
+    const team1Members = await teamService.listTeamMembers('team1');
+    const team2Members = await teamService.listTeamMembers('team2');
+    const team3Members = await teamService.listTeamMembers('team3');
+    
+    if (!team1Members.includes('user_A') || !team1Members.includes('user_B')) {
+      throw new Error('Team 1 missing expected members');
+    }
+    if (!team2Members.includes('user_C') || !team2Members.includes('user_D')) {
+      throw new Error('Team 2 missing expected members');
+    }
+    if (team3Members.length !== 0) {
+      throw new Error('Team 3 should be empty');
+    }
+
+    // Verify artifacts
+    const artifacts = Object.keys(session.artifacts);
+    if (!artifacts.includes('at1') || !artifacts.includes('at3') || artifacts.includes('at2')) {
+      throw new Error('Unexpected artifacts state');
+    }
+
+    console.log('\nTest 3 completed successfully! ✨');
+  } catch (error) {
+    console.error('Test 3 failed:', error);
+    throw error;
+  }
+}
+
 async function runAllTests() {
   try {
     await runTest1();
     await runTest2();
+    await runTest3();  // Add this line
     console.log('\nAll tests completed successfully! ✨');
   } catch (error) {
     console.error('Tests failed:', error);
