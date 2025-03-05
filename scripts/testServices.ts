@@ -1,3 +1,65 @@
+/**
+ * Firebase Service Layer Integration Tests
+ * ======================================
+ * 
+ * Purpose:
+ * These tests verify the data integrity and operation sequencing of the Firebase service layer.
+ * They ensure proper creation, association, and deletion of objects following the schema rules.
+ * 
+ * Files Being Tested:
+ * - services/UserService.ts: User management and associations
+ * - services/TeamService.ts: Team management and membership
+ * - services/SessionService.ts: Session management and relationships
+ * - services/ArtifactService.ts: Artifact management and discovery
+ * 
+ * Prerequisites:
+ * 1. Node.js (v16+) installed
+ * 2. Firebase project set up with Realtime Database
+ * 3. Firebase configuration in firebaseConfig.ts
+ * 
+ * Setup:
+ * 1. Install required dependencies:
+ *    npm install
+ * 
+ * 2. Install tsx globally (if not already installed):
+ *    npm install -g tsx
+ * 
+ *    What is tsx?
+ *    - tsx is a Node.js runtime for TypeScript and ESM
+ *    - It allows direct execution of TypeScript files without compilation
+ * 
+ * Running the Tests:
+ *    tsx <path to the file>/testServices.ts
+ * 
+ * Test Suites:
+ * 1. Basic CRUD (Test1)
+ *    - Tests basic object creation
+ *    - Tests attribute setting
+ *    - Tests simple associations
+ *    - Tests proper deletion order
+ * 
+ * 2. Complex Operations (Test2)
+ *    - Tests multi-session scenarios
+ *    - Tests team assignments
+ *    - Tests artifact finding mechanics
+ *    - Tests error conditions
+ * 
+ * 3. Validation Rules (Test3)
+ *    - Tests invalid operations
+ *    - Tests proper operation sequencing
+ *    - Tests state transitions
+ *    - Verifies final database state
+ * 
+ * Database Impact:
+ * Tests write to isolated nodes:
+ * - SchemaTest_Thuan_Test1
+ * - SchemaTest_Thuan_Test2
+ * - SchemaTest_Thuan_Test3
+ * 
+ * Each test cleans up its node before starting.
+ * 
+ */
+
 import { UserService } from '../services/UserService';
 import { TeamService } from '../services/TeamService';
 import { SessionService } from '../services/SessionService';

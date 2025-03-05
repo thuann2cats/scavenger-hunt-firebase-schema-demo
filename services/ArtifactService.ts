@@ -53,6 +53,20 @@ export class ArtifactService extends BaseService {
     await this.setData(`artifacts/${artifactId}/longitude`, longitude);
   }
 
+  async setImageUrl(artifactId: string, imageUrl: string): Promise<void> {
+    const artifact = await this.getArtifact(artifactId);
+    if (!artifact) throw new Error('Artifact not found');
+    
+    await this.setData(`artifacts/${artifactId}/imageUrl`, imageUrl);
+  }
+
+  async setAudioUrl(artifactId: string, audioUrl: string): Promise<void> {
+    const artifact = await this.getArtifact(artifactId);
+    if (!artifact) throw new Error('Artifact not found');
+    
+    await this.setData(`artifacts/${artifactId}/audioUrl`, audioUrl);
+  }
+
   async setChallengeStatus(artifactId: string, isChallenge: boolean): Promise<void> {
     const artifact = await this.getArtifact(artifactId);
     if (!artifact) throw new Error('Artifact not found');
